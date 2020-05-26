@@ -31,9 +31,15 @@ class ExtracaoUtils:
     def mapear_info_listagem(self, elemento_artigo, lista_mapeamento, ano_artigo, tipo_artigo):
         try:
             lista_artigos = ListaArtigos(self.driver)
-            titulo_artigo = lista_artigos.obter_titulo_artigo(elemento_artigo)
-            url_artigo = lista_artigos.obter_url_artigo(elemento_artigo)
-            temp = pd.DataFrame({'ID do Artigo': len(lista_mapeamento)+1, 'Titulo do Artigo': titulo_artigo,
+            if ano_artigo == 2019:
+                titulo_artigo = lista_artigos.obter_titulo_artigo(elemento_artigo[1])
+                url_artigo = lista_artigos.obter_url_artigo(elemento_artigo[0])
+            else:
+                titulo_artigo = lista_artigos.obter_titulo_artigo(elemento_artigo)
+                url_artigo = lista_artigos.obter_url_artigo(elemento_artigo)
+
+            url_artigo = url_artigo.replace("view", "download")
+            temp = pd.DataFrame({'ID do Artigo': len(lista_mapeamento) + 1, 'Titulo do Artigo': titulo_artigo,
                                  'URL': url_artigo, 'Ano': ano_artigo, 'Tipo de Artrigo': tipo_artigo}, index=[0])
             lista_mapeamento.append(temp)
             print(temp.values)
@@ -44,8 +50,8 @@ class ExtracaoUtils:
 
     def extracao_padrao_1(self, ano_edicao, tipo_artigo, ele_ini, ele_fim, lista_artigos_mapeados,
                           caminho_destino_artigos, eh_pagina_anais_evento):
-        url_artigo = self.url_anais_ano(ano_edicao)
-        self.driver.get(url_artigo)
+        url_anais = self.url_anais_ano(ano_edicao)
+        self.driver.get(url_anais)
         page_lista_artigos = PageListaArtigos()
         lista_artigos = ListaArtigos(self.driver)
         arquivos_ferramentas = ArquivosUtils()
@@ -60,8 +66,13 @@ class ExtracaoUtils:
             try:
                 indice = str(indice)
                 artigos_pagina = page_lista_artigos.chaveamento_artigo(self.driver, ano_edicao, tipo_artigo, indice)
-                url_artigo = lista_artigos.obter_url_artigo(artigos_pagina)
+                if ano_edicao == 2019:
+                    url_artigo = lista_artigos.obter_url_artigo(artigos_pagina[0])
+                else:
+                    url_artigo = lista_artigos.obter_url_artigo(artigos_pagina)
+
                 self.mapear_info_listagem(artigos_pagina, lista_artigos_mapeados, ano_edicao, tipo_artigo)
+
                 nome_arquivo = arquivos_ferramentas.nomear_artigo(lista_artigos_mapeados, ano_edicao, tipo_artigo)
                 arquivos_ferramentas.requisitar_arquivo(url_artigo, caminho_destino_artigos, nome_arquivo, "pdf")
                 self.log.info(nome_arquivo + " - Status: Finished")
