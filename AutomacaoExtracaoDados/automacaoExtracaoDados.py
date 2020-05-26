@@ -80,6 +80,7 @@ def main():
     ids_artigos = list(dataSaida["ID do Artigo"])
     assert len(artigos_mapeamento) == 308
     assert len(ids_artigos) == len(set(ids_artigos))
+    arquivos_ferramentas.validar_tamanho_artigos(caminho_artigos)
     fim = time.time()
     print("Automação Finalizada com sucesso. \n\nTempo de execução: {0} min.".format(round((fim-inicio)/60)))
 
