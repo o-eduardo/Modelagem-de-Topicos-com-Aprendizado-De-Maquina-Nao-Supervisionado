@@ -83,5 +83,6 @@ class ArquivosUtils:
             text_converter.close()
             arq_auxiliar.close()
             assert ("EATI" in texto_arquivo)
+            assert ("Referências" in texto_arquivo)
             if texto_arquivo:
                 return texto_arquivo
