@@ -1,10 +1,5 @@
-import logging as log
 import time
 
-import pandas as pd
-# load webdriver function from selenium
-from selenium import webdriver
-import pprint
 
 from Utils.ArquivosUtils import ArquivosUtils
 from Utils.ExtracaoUtils import ExtracaoUtils
@@ -12,5 +7,10 @@ from Utils.ExtracaoUtils import ExtracaoUtils
 arquivos_ferramentas = ArquivosUtils()
 caminho = "C:\PGC\BaseDeDados/1_2017_longo.pdf"
 
-raw_text = arquivos_ferramentas.obter_texto_pdf(caminho)
-print(raw_text)
+inicio = time.time()
+#"C:\PGC\BaseDeDados/ é diretorio local, ainda nao esta apontando para os arquivos extraidos
+arquivos_ferramentas.consolidar_base_arquivos("C:\PGC\BaseDeDados/", "ArtefatosSaida/", "corpus_artigos")
+fim = time.time()
+print("Automação Finalizada com sucesso.\nTempo de execução: {0} min.".format(round((fim - inicio) / 60)))
+
+

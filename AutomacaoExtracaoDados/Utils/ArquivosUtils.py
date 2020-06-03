@@ -1,11 +1,17 @@
+# -*- coding: utf-8 -*-
+
 import os
 import io
 import pandas as pd
 import requests
 from pdfminer.converter import TextConverter
+from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFPageInterpreter
 from pdfminer.pdfinterp import PDFResourceManager
 from pdfminer.pdfpage import PDFPage
+from tika import parser
+
+from pygments.lexers.csound import newline
 
 
 class ArquivosUtils:
@@ -23,6 +29,12 @@ class ArquivosUtils:
             arq_caminho = caminho_destino + arq
             arq_tamanho = os.path.getsize(arq_caminho)
             assert arq_tamanho > 2800, "Verificar arquivo " + arq_caminho
+
+    @staticmethod
+    def to_string(alist):
+        seperator = ' '
+        raw_text = seperator.join(alist)
+        return raw_text
 
     def requisitar_arquivo(self, url_arquivo, caminho_destino, nome_arquivo, extencao_arquivo):
         try:
@@ -62,7 +74,7 @@ class ArquivosUtils:
         except IOError:
             print("Arquivo com erro!")
 
-    def obter_texto_pdf(self, caminho_arquivo):
+    def obter_texto_pdf_pdfminer(self, caminho_arquivo):
         self.validar_arquivo(caminho_arquivo, ".pdf")
         pdf_resource_manager = PDFResourceManager()
         arq_auxiliar = io.StringIO()
@@ -74,15 +86,68 @@ class ArquivosUtils:
                 for page in PDFPage.get_pages(fh, caching=True, check_extractable=True):
                     page_interpreter.process_page(page)
                     count_page = count_page + 1
-                    print("pagina {0} processada".format(count_page))
+                    # print("pagina {0} processada".format(count_page))
 
                 texto_arquivo = arq_auxiliar.getvalue()
+                self.validar_conteudo_artivo(texto_arquivo, caminho_arquivo)
         except:
             print("Falha na converção para Texto!\nVerificar: {0}".format(caminho_arquivo))
         finally:
             text_converter.close()
             arq_auxiliar.close()
-            assert ("EATI" in texto_arquivo)
-            assert ("Referências" in texto_arquivo)
+        if texto_arquivo:
+            return texto_arquivo
+
+    def obter_texto_pdf_tika(self, caminho_arquivo):
+        self.validar_arquivo(caminho_arquivo, ".pdf")
+        try:
+            raw = parser.from_file(caminho_arquivo)
+            texto_arquivo = (raw['content'].replace("-\n", ""))
+            texto_arquivo = (texto_arquivo.replace("\n", " "))
+            self.validar_conteudo_artigo(texto_arquivo, caminho_arquivo)
+        except:
+            print("Falha na converção para Texto!\nVerificar: {0}".format(caminho_arquivo))
+        finally:
             if texto_arquivo:
                 return texto_arquivo
+
+    def unificar_texto_pdfs(self, caminho_diretorio_pdfs):
+        lista_conteudo_texto = []
+        lista_arquivos_diretorio = os.listdir(caminho_diretorio_pdfs)
+        print("\n*************************************************************************")
+        print("Extraindo texto dos PDF's em {0}\n".format(caminho_diretorio_pdfs))
+        for arq in lista_arquivos_diretorio:
+            arq_caminho = caminho_diretorio_pdfs + arq
+            raw_text = self.obter_texto_pdf_tika(arq_caminho)
+            lista_conteudo_texto.append(raw_text)
+        assert len(lista_arquivos_diretorio) == len(lista_conteudo_texto)
+        print("\n*************************************************************************")
+        print("\nDados de texto extraidos com sucesso!".format(caminho_diretorio_pdfs))
+        return lista_conteudo_texto
+
+    def gerar_arquivo_texto_unificado(self, lista_conteudo_texto, caminho_destino, nome_arquivo):
+        print("\n*************************************************************************\n")
+        print("Criando arquivo do corpus consolidado...\n")
+        try:
+            nome_arquivo_completo = caminho_destino + nome_arquivo + ".txt"
+            arquivo = open(nome_arquivo_completo, "w", encoding='utf-8')
+            for item_artigo in lista_conteudo_texto:
+                arquivo.write(item_artigo + '\n')
+        except :
+            print("Erro na geração do arquivo Unificado de textos! \n")
+        finally:
+            arquivo.close()
+            print("Arquivo do corpus consolidado Gerado com sucesso! \n")
+            print("*************************************************************************\n")
+
+    def consolidar_base_arquivos(self, caminho_diretorio_pdfs, caminho_destino_arquivo, nome_arquivo):
+        lista_texto_arquivos = self.unificar_texto_pdfs(caminho_diretorio_pdfs)
+        self.gerar_arquivo_texto_unificado(lista_texto_arquivos, caminho_destino_arquivo, nome_arquivo)
+
+    def validar_conteudo_artigo(self, texto_arquivo, caminho_arq):
+        try:
+            #assert ("EATI" in texto_arquivo)
+            assert "Resumo" in texto_arquivo
+            assert "Refer" in texto_arquivo
+        except AssertionError:
+            print("*****Verificar conteudo arquivo {0}****".format(caminho_arq))
