@@ -127,7 +127,7 @@ class ArquivosUtils:
 
     def gerar_arquivo_texto_unificado(self, lista_conteudo_texto, caminho_destino, nome_arquivo):
         print("\n*************************************************************************\n")
-        print("Criando arquivo do corpus consolidado...\n")
+        print("Criando arquivo '{0}' do corpus consolidado em {1}...\n".format(nome_arquivo, caminho_destino))
         try:
             nome_arquivo_completo = caminho_destino + nome_arquivo + ".txt"
             arquivo = open(nome_arquivo_completo, "w", encoding='utf-8')
@@ -144,10 +144,42 @@ class ArquivosUtils:
         lista_texto_arquivos = self.unificar_texto_pdfs(caminho_diretorio_pdfs)
         self.gerar_arquivo_texto_unificado(lista_texto_arquivos, caminho_destino_arquivo, nome_arquivo)
 
+    def consolidar_base_arquivos_ano_edicao(self, caminho_diretorio_pdfs, caminho_destino_arquivo, nome_padrao_arquivo):
+        lista_arquivos_diretorio = os.listdir(caminho_diretorio_pdfs)
+        for ano in range(2011, 2020):
+            lista_arquivos_ano = self.filtra_arquivos_ano_edicao(ano, lista_arquivos_diretorio)
+            lista_texto_arquivos = self.unificar_texto_pdfs_ano_edicao(caminho_diretorio_pdfs, lista_arquivos_ano, ano)
+            nome_arquivo_corpus_ano = nome_padrao_arquivo + "_" + str(ano)
+            self.gerar_arquivo_texto_unificado(lista_texto_arquivos, caminho_destino_arquivo, nome_arquivo_corpus_ano)
+
+
     def validar_conteudo_artigo(self, texto_arquivo, caminho_arq):
         try:
             #assert ("EATI" in texto_arquivo)
-            assert "Resumo" in texto_arquivo
-            assert "Refer" in texto_arquivo
+            assert "resumo" in texto_arquivo.lower()
+            assert "refer" in texto_arquivo.lower()
         except AssertionError:
             print("*****Verificar conteudo arquivo {0}****".format(caminho_arq))
+
+    def unificar_texto_pdfs_ano_edicao(self, caminho_diretorio_pdfs, lista_arquivos_diretorio, ano_edicao):
+        lista_conteudo_texto = []
+        print("\n*************************************************************************")
+        print("Extraindo texto dos PDF's da edição {0} em {1}\n".format(ano_edicao, caminho_diretorio_pdfs))
+        self.extrair_texto_pdfs(caminho_diretorio_pdfs, lista_arquivos_diretorio,  lista_conteudo_texto)
+        print("\n*************************************************************************")
+        print("\nDados de texto extraidos com sucesso!".format(caminho_diretorio_pdfs))
+        return lista_conteudo_texto
+
+    def extrair_texto_pdfs(self, caminho_diretorio_pdfs, lista_arquivos_diretorio, lista_texto):
+        for arq in lista_arquivos_diretorio:
+            arq_caminho = caminho_diretorio_pdfs + arq
+            raw_text = self.obter_texto_pdf_tika(arq_caminho)
+            lista_texto.append(raw_text)
+
+    def filtra_arquivos_ano_edicao(self, ano_edicao, lista_arquivos):
+        lista_filtro = []
+        ano_edicao = str(ano_edicao)
+        for arq in lista_arquivos:
+            if ano_edicao in arq:
+                lista_filtro.append(arq)
+        return lista_filtro
