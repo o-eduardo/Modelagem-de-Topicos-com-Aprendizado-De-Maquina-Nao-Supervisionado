@@ -1,10 +1,10 @@
 import pandas as pd
 import os
-from Pages.PageListaArtigos import PageListaArtigos
-from Pages.PageAnais import PageAnais
-from Steps.Anais import Anais
-from Steps.ListaArtigos import ListaArtigos
-from Utils.ArquivosUtils import ArquivosUtils
+from pages.PageListaArtigos import PageListaArtigos
+from pages.PageAnais import PageAnais
+from steps.Anais import Anais
+from steps.ListaArtigos import ListaArtigos
+from utils.ArquivosUtils import ArquivosUtils
 
 
 class ExtracaoUtils:
