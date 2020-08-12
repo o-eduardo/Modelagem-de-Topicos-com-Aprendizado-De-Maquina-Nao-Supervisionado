@@ -183,3 +183,22 @@ class ArquivosUtils:
             if ano_edicao in arq:
                 lista_filtro.append(arq)
         return lista_filtro
+
+    @staticmethod
+    def obter_lista_novas_stopwords(caminho_stopwords):
+        novas_stopwords = []
+        ArquivosUtils.validar_arquivo(caminho_stopwords, ".txt")
+        print("\n*************************************************************************\n")
+        print("Extraindo StopWords ...\n")
+        try:
+            arquivo_stopwords = open(caminho_stopwords, "r", encoding="utf-8")
+            for linha in arquivo_stopwords:
+                linha = linha.strip()
+                novas_stopwords.append(linha)
+        except:
+            print("Erro na extração de StopWords! \n")
+        finally:
+            arquivo_stopwords.close()
+            print("Extração das stopWords realizada com sucesso! \n")
+            print("*************************************************************************\n")
+        return novas_stopwords
