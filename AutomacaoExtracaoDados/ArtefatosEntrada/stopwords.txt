@@ -22,6 +22,7 @@ possível
 p.
 v
 p
+pp
 -se
 se
 se
@@ -445,3 +446,115 @@ ter-se
 ter
 tendo
 assim
+n
+vol
+av
+gov
+Acre
+AC
+Alagoas
+AL
+Amapá
+AP
+Amazonas
+AM
+Bahia
+BA
+Ceará
+CE
+Distrito Federal
+DF
+Espírito Santo
+ES
+Maranhão
+MA
+Mato Grosso
+MT
+Mato Grosso do Sul
+MS
+Minas Gerais
+MG
+Pará
+PA
+Paraíba
+PB
+Paraná
+PR
+Pernambuco
+PE
+Piauí
+PI
+Rio de Janeiro
+RJ
+Rio Grande do Norte
+RN
+Rio Grande do Sul
+RS
+Rondônia
+RO
+Roraima
+RR
+Santa Catarina
+SC
+São Paulo
+SP
+Sergipe
+SE
+Tocantins
+TO
+acre
+ac
+alagoas
+al
+amapá
+ap
+amazonas
+am
+bahia
+ba
+ceará
+ce
+distrito federal
+df
+espírito santo
+es
+maranhão
+ma
+mato grosso
+mt
+mato grosso do sul
+ms
+minas gerais
+mg
+pará
+pa
+paraíba
+pb
+paraná
+pr
+pernambuco
+pe
+piauí
+pi
+rio de janeiro
+rj
+rio grande do norte
+rn
+rio grande do sul
+rs
+rondônia
+ro
+roraima
+rr
+santa catarina
+sc
+são paulo
+sp
+sergipe
+se
+tocantins
+to
+et
+al
+CEP
+cep

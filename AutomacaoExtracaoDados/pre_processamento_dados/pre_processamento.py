@@ -1,315 +1,280 @@
 # -*- coding: utf-8 -*-
-import nltk
-
-from utils.ArquivosUtils import ArquivosUtils
-
-nltk.download('stopwords')
-nltk.download('rslp')
-nltk.download('gutenberg')
-nltk.download('punkt')
-
-from unicodedata import normalize
-from nltk.probability import FreqDist
-
 import re
+from unicodedata import normalize
+
+import nltk
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 
+from utils.ArquivosUtils import ArquivosUtils
+
+
 class PreProcessamento:
 
-    @staticmethod
-    def remover_stopwords(texto):
+    def __init__(self):
+        nltk.download('stopwords')
+        nltk.download('rslp')
+        nltk.download('gutenberg')
+        nltk.download('punkt')
+
+    def remover_stopwords(self, texto):
         stop_words = set(stopwords.words('portuguese'))
         stop_words_us = set(stopwords.words('english'))
         new_stopwords = ArquivosUtils.obter_lista_novas_stopwords('ArtefatosEntrada/stopwords.txt')
         stop_words.update(new_stopwords)
+        stop_words.update([stp.lower() for stp in new_stopwords])
         stop_words.update(stop_words_us)
         palavra = [i for i in texto.lower().split() if i not in stop_words]
         return ' '.join(palavra)
 
-    @staticmethod
-    def tokenizar_texto(texto):
+    def tokenizar_texto(self, texto):
         texto_tokenizado = word_tokenize(texto.lower())
         return texto_tokenizado
 
-    @staticmethod
-    def remover_acentos(texto):
+    def remover_acentos(self, texto):
         return normalize('NFKD', texto).encode('ASCII', 'ignore').decode('ASCII')
 
-    @staticmethod
-    def converter_texto_para_minusculo(texto):
-      return texto.lower()
+    def converter_texto_para_minusculo(self, texto):
+        return texto.lower()
 
-    @staticmethod
-    def remover_caracteres_especiais_e_numericos(texto):
-        texto_sem_carac_num = re.sub(r'[^a-zA-Z \n]', "", texto)
-        return texto_sem_carac_num
+    def remover_caracteres_especiais(self, texto):
+        texto_sem_carac_esp = re.sub(r'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕàÀìÌòÒïÏñÑÜüçÇ ]', "", texto)
+        return texto_sem_carac_esp
 
-    @staticmethod
-    def remover_email(texto):
+    def remover_email(self, texto):
         padrao_email = r'[\w+\./{1}]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}'
         texto_sem_email = re.sub(padrao_email, "", texto)
         return texto_sem_email
 
-    @staticmethod
-    def remover_conjunto_emails(texto):
+    def remover_conjunto_emails(self, texto):
         padrao_email = r'\{[\w+\./{1}\,*]+\}@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}'
         texto_sem_email = re.sub(padrao_email, "", texto)
         return texto_sem_email
 
-    @staticmethod
-    def remover_enderecos_emails(texto):
-        texto = PreProcessamento.remover_conjunto_emails(texto)
-        texto = PreProcessamento.remover_email(texto)
+    def remover_enderecos_emails(self, texto):
+        texto = self.remover_conjunto_emails(texto)
+        texto = self.remover_email(texto)
         return texto
 
-    @staticmethod
-    def remover_url(texto):
+    def remover_url(self, texto):
         padrao_url = r'\w+:\/{2}[\d\w-]+(\.[\d\w-]+)*(?:(?:\/[^\s/]*))*'
         texto_sem_url = re.sub(padrao_url, "", texto)
         return texto_sem_url
 
-    @staticmethod
-    def converter_termos_geral(texto):
-        texto = re.sub(" universidade federal de minas gerais ", " ufmg ", texto.lower())
-        texto = re.sub(" universidade federal de ouro preto ", " ufop ", texto.lower())
-        texto = re.sub(" universidade federal de pernambuco ", " ufpe ", texto.lower())
-        texto = re.sub(" universidade federal de santa caratina ", " ufsc ", texto.lower())
-        texto = re.sub(" universidade federal de são carlos ", " ufscar ", texto.lower())
-        texto = re.sub(" universidade federal de sergipe ", " ufs ", texto.lower())
-        texto = re.sub(" universidade federal de viçosa ", " ufv ", texto.lower())
-        texto = re.sub(" universidade federal do ceará ", " ufc ", texto.lower())
-        texto = re.sub(" universidade federal do estado do rio de janeiro ", " unirio ", texto.lower())
-        texto = re.sub(" universidade federal do maranhão ", " ufma ", texto.lower())
-        texto = re.sub(" universidade federal do pará ", " ufpa ", texto.lower())
-        texto = re.sub(" universidade federal do paraná ", " ufpr ", texto.lower())
-        texto = re.sub(" universidade federal do rio de janeiro ", " ufrj ", texto.lower())
-        texto = re.sub(" universidade federal do rio grande do norte ", " ufrn ", texto.lower())
-        texto = re.sub(" universidade federal do rio grande do sul  ", " ufrgs ", texto.lower())
-        texto = re.sub(" universidade federal fluminense ", " uff ", texto.lower())
-        texto = re.sub(" universidade federal rural do rio de janeiro ", " ufrrj ", texto.lower())
-        texto = re.sub(" pontifícia universidade católica ", " puc ", texto.lower())
-        texto = re.sub(" universidade federal de goiás ", " ufg ", texto.lower())
-        texto = re.sub(" universidade de são paulo ", " usp ", texto.lower())
-        texto = re.sub(" universidade federal de santa maria ", " ufsm ", texto.lower())
-        texto = re.sub(" escola regional de computação ceará maranhão piauí ", " ERCEMAPI ", texto.lower())
-        texto = re.sub(" Universidade de Passo Fundo ".lower(), " UPF ".lower(), texto.lower())
-        texto = re.sub(" Universidade Federal de Itajubá ".lower(), " UNIFEI ".lower(), texto.lower())
-        texto = re.sub(" Escola Regional de Alto Desempenho ".lower(), " ERAD ".lower(), texto.lower())
-        texto = re.sub(" Faculdade de tecnologia e ciências ".lower(), " FTC ".lower(), texto.lower())
-        texto = re.sub(" Instituto Nacional de Pesquisas Espaciais ".lower(), " INPE ".lower(), texto.lower())
-        texto = re.sub(" Instituto de Tecnologia de Pernambuco ".lower(), " ITEP ".lower(), texto.lower())
-        texto = re.sub(" Pontifícia Universidade Católica do Paraná ".lower(), " PUCRS ".lower(), texto.lower())
-        texto = re.sub(" Universidade Estadual de Campinas ".lower(), " UNICAMP ".lower(), texto.lower())
-        texto = re.sub(" Fundação Getulio Vargas ".lower(), " FGV ".lower(), texto.lower())
-        texto = re.sub(" Universidade Regional Integrada do Alto Uruguai e das Missões ".lower(), " URI ".lower(),
-                       texto.lower())
-        texto = re.sub(" Colégio Agrícola de Frederico Westphalen ".lower(), " CAFW ".lower(), texto.lower())
-        texto = re.sub(" Institute of Electrical and Electronic Engineers ".lower(), " IEEE ".lower(), texto.lower())
-        texto = re.sub(" Instituto Federal de Educação Ciência e Tecnologia do Ceará ".lower(), " IFCE ".lower(),
-                       texto.lower())
-        texto = re.sub(" Universidade Federal do Rio Grande do Sul ".lower(), " UFRGS ".lower(), texto.lower())
-        texto = re.sub(" Associação Brasileira de Normas Técnicas ".lower(), " ABNT ".lower(), texto.lower())
-        texto = re.sub(" Universidade Luterana do Brasil ".lower(), " ULBRA ".lower(), texto.lower())
-        texto = re.sub(" Ministério da Educação ".lower(), " MEC ".lower(), texto.lower())
-        texto = re.sub(" Universidade do Estado da Bahia ".lower(), " UNEB ".lower(), texto.lower())
-        texto = re.sub(" Instituto Nacional de Estudos e Pesquisas Educacionais ".lower(), " INEP ".lower(),
-                       texto.lower())
-        texto = re.sub(" Instituto Brasileiro de Geografia Estatística ".lower(), " IBGE ".lower(), texto.lower())
-        texto = re.sub(" Universidade Federal do Pampa ".lower(), " UNIPAMPA ".lower(), texto.lower())
-        texto = re.sub(" Instituto Federal de Educação Ciência e Tecnologia da Bahia ".lower(), " IFBA ".lower(),
-                       texto.lower())
-        texto = re.sub(" Centro de Educação Superior Norte RS ".lower(), " CESNORS ".lower(), texto.lower())
-        texto = re.sub(" Instituto Federal do Ceará ".lower(), " IFCE ".lower(), texto.lower())
-        texto = re.sub(" Massachusetts Institute of Technology ".lower(), " MIT ".lower(), texto.lower())
-        texto = re.sub(" Instituto Federal do Paraná ".lower(), " IFPR ".lower(), texto.lower())
-        texto = re.sub(" Simpósio de tecnologia da Informação da Região Noroeste do RS ".lower(), " STIN ".lower(),
-                       texto.lower())
-        texto = re.sub(" Agência de Desenvolvimento do Médio Alto Uruguai ".lower(), " ADMAU ".lower(), texto.lower())
-        texto = re.sub(" Universidade Federal Rural da Amazônia ".lower(), " UFRA ".lower(), texto.lower())
-        texto = re.sub(" Universidade Federal Rural da Amazônia ".lower(), " UFRA ".lower(), texto.lower())
-        texto = re.sub(" Sociedade Paranaense de Ensino e Informática ".lower(), " SPEI ".lower(), texto.lower())
-        texto = re.sub(" Instituto Federal de Pernambuco ".lower(), " IFPE ".lower(), texto.lower())
-        texto = re.sub(" Departamento Estadual de Informática Policial ".lower(), " DINP ".lower(), texto.lower())
-        texto = re.sub(" Agência Nacional de Energia Elétrica ".lower(), " ANEEL ".lower(), texto.lower())
-        texto = re.sub(" Inteligência Artificial e Tecnologia Educacional ".lower(), " IATE ".lower(), texto.lower())
-        texto = re.sub(" Simpósio Brasileiro de Informática na Educação ".lower(), " SBIE ".lower(), texto.lower())
-        texto = re.sub(" Universidade Federal da Fronteira Sul ".lower(), " UFFS ".lower(), texto.lower())
-        texto = re.sub(" Exame Nacional do Ensino Médio ".lower(), " ENEM ".lower(), texto.lower())
-        texto = re.sub(" SGBD ".lower(), " Sistema de Gerenciamento de Banco de Dados ".lower(), texto.lower())
-        texto = re.sub(" CNPq ".lower(), " Conselho Nacional de Desenvolvimento Científico e Tecnológico ".lower(),
-                       texto.lower())
-        texto = re.sub("-se", "", texto.lower())
-        texto = re.sub(" se ", "", texto.lower())
-        texto = re.sub("-lo ", "", texto.lower())
-        texto = re.sub("-la ", "", texto.lower())
-        texto = re.sub(" lo ", "", texto.lower())
-        texto = re.sub(" la ", "", texto.lower())
+    def converter_termos_geral(self, texto):
+        texto = re.sub(" Universidade Federal de Minas Gerais", " UFMG ", texto)
+        texto = re.sub(" Universidade Federal de Ouro Preto", " UFOP ", texto)
+        texto = re.sub(" Universidade Federal de Pernambuco", " UFPE ", texto)
+        texto = re.sub(" Universidade Federal de Santa Catarina", " UFSC ", texto)
+        texto = re.sub(" Universidade Federal de São Carlos", " UFSCAR ", texto)
+        texto = re.sub(" Universidade Federal de Sergipe", " UFS ", texto)
+        texto = re.sub(" Universidade Federal de Viçosa", " UFV ", texto)
+        texto = re.sub(" Universidade Federal do Ceará", " UFC ", texto)
+        texto = re.sub(" Universidade Federal do Estado do Rio de Janeiro", " UNIRIO ", texto)
+        texto = re.sub(" Universidade Federal do Maranhão", " UFMA ", texto)
+        texto = re.sub(" Universidade Federal do Pará", " UFPA ", texto)
+        texto = re.sub(" Universidade Federal do Paraná", " UFPR ", texto)
+        texto = re.sub(" Universidade Federal do Rio de Janeiro", " UFRJ ", texto)
+        texto = re.sub(" Universidade Federal do Rio Grande do Norte", " UFRN ", texto)
+        texto = re.sub(" Universidade Federal do Rio Grande do Sul", " UFRGS ", texto)
+        texto = re.sub(" Universidade Federal Fluminense", " UFF ", texto)
+        texto = re.sub(" Universidade Federal Rural do Rio de Janeiro", " UFRRJ ", texto)
+        texto = re.sub(" Pontifícia Universidade Católica", " PUC ", texto)
+        texto = re.sub(" Universidade Federal de Goiás", " UFG ", texto)
+        texto = re.sub(" Universidade de São Paulo", " USP ", texto)
+        texto = re.sub(" Universidade Federal de Santa Maria", " UFSM ", texto)
+        texto = re.sub(" Escola Regional de Computação Ceará Maranhão Piauí", " ERCEMAPI ", texto)
+        texto = re.sub(" Universidade de Passo Fundo", " UPF ", texto)
+        texto = re.sub(" Universidade Federal de Itajubá", " UNIFEI ", texto)
+        texto = re.sub(" Escola Regional de Alto Desempenho", " ERAD ", texto)
+        texto = re.sub(" Faculdade de Tecnologia e Ciências", " FTC ", texto)
+        texto = re.sub(" Instituto Nacional de Pesquisas Espaciais", " INPE ", texto)
+        texto = re.sub(" Instituto de Tecnologia de Pernambuco", " ITEP ", texto)
+        texto = re.sub(" Pontifícia Universidade Católica do Paraná", " PUCRS ", texto)
+        texto = re.sub(" Universidade Estadual de Campinas", " UNICAMP ", texto)
+        texto = re.sub(" Fundação Getulio Vargas", " FGV ", texto)
+        texto = re.sub(" Universidade Regional Integrada do Alto Uruguai e das Missões", " URI ", texto)
+        texto = re.sub(" Colégio Agrícola de Frederico Westphalen", " CAFW ", texto)
+        texto = re.sub(" Institute of Electrical and Electronic Engineers", " IEEE ", texto)
+        texto = re.sub(" Instituto Federal de Educação Ciência e Tecnologia do Ceará", " IFCE ", texto)
+        texto = re.sub(" Universidade Federal do Rio Grande do Sul", " UFRGS ", texto)
+        texto = re.sub(" Associação Brasileira de Normas Técnicas", " ABNT ", texto)
+        texto = re.sub(" Universidade Luterana do Brasil", " ULBRA ", texto)
+        texto = re.sub(" Ministério da Educação", " MEC ", texto)
+        texto = re.sub(" Universidade do Estado da Bahia", " UNEB ", texto)
+        texto = re.sub(" Instituto Nacional de Estudos e Pesquisas Educacionais", " INEP ", texto)
+        texto = re.sub(" Instituto Brasileiro de Geografia Estatística", " IBGE ", texto)
+        texto = re.sub(" Universidade Federal do Pampa", " UNIPAMPA ", texto)
+        texto = re.sub(" Instituto Federal de Educação Ciência e Tecnologia da Bahia", " IFBA ", texto)
+        texto = re.sub(" Centro de Educação Superior Norte RS", " CESNORS ", texto)
+        texto = re.sub(" Instituto Federal do Ceará", " IFCE ", texto)
+        texto = re.sub(" Massachusetts Institute of Technology", " MIT ", texto)
+        texto = re.sub(" Instituto Federal do Paraná", " IFPR ", texto)
+        texto = re.sub(" Simpósio de Tecnologia da Informação da Região Noroeste do RS", " STIN ", texto)
+        texto = re.sub(" Agência de Desenvolvimento do Médio Alto Uruguai", " ADMAU ", texto)
+        texto = re.sub(" Universidade Federal Rural da Amazônia", " UFRA ", texto)
+        texto = re.sub(" Sociedade Paranaense de Ensino e Informática", " SPEI ", texto)
+        texto = re.sub(" Instituto Federal de Pernambuco", " IFPE ", texto)
+        texto = re.sub(" Departamento Estadual de Informática Policial", " DINP ", texto)
+        texto = re.sub(" Agência Nacional de Energia Elétrica", " ANEEL ", texto)
+        texto = re.sub(" Inteligência Artificial e Tecnologia Educacional", " IATE ", texto)
+        texto = re.sub(" Simpósio Brasileiro de Informática na Educação", " SBIE ", texto)
+        texto = re.sub(" Universidade Federal da Fronteira Sul", " UFFS ", texto)
+        texto = re.sub(" Exame Nacional do Ensino Médio", " ENEM ", texto)
+        texto = re.sub("SGBD", " Sistema de Gerenciamento de Banco de Dados", texto)
+        texto = re.sub("CNPq", " Conselho Nacional de Desenvolvimento Científico e Tecnológico", texto)
         return texto
 
-    @staticmethod
-    def converter_termos_2011(texto):
-        texto = re.sub(" LE", " lingua estrangeira ".lower(), texto)
-        texto = re.sub(" EAD", " Educação a Distância ".lower(), texto)
-        texto = re.sub(" ZPD", " Zona de Desenvolvimento Proximal ".lower(), texto)
-        texto = re.sub(" CCE", " Centro de Computação Eletrônica ".lower(), texto)
-        texto = re.sub(" AVALWEB",
-                       " Sistema interativo para gerência de questões e aplicação de avaliação na Web ".lower(), texto)
-        texto = re.sub(" AVAs", " Ambientes Virtuais de Aprendizagem ".lower(), texto)
-        texto = re.sub(" AVA", " Ambiente Virtual de Aprendizagem ".lower(), texto)
-        texto = re.sub(" TI", " Tecnologia da Informação ".lower(), texto)
-        texto = re.sub(" SIG", " Sistemas de Informações  Geográficas ".lower(), texto)
-        texto = re.sub("AIS", " Sistemas de Informações  Geográficas ".lower(), texto)
+    def converter_termos_2011(self, texto):
+        texto = re.sub(" LE", " Lingua Estrangeira ", texto)
+        texto = re.sub(" EAD", " Educação a Distância ", texto)
+        texto = re.sub(" ZPD", " Zona de Desenvolvimento Proximal ", texto)
+        texto = re.sub(" CCE", " Centro de Computação Eletrônica ", texto)
+        texto = re.sub(" AVAs", " Ambientes Virtuais de Aprendizagem ", texto)
+        texto = re.sub(" AVA", " Ambiente Virtual de Aprendizagem ", texto)
+        texto = re.sub(" TI", " Tecnologia da Informação ", texto)
+        texto = re.sub(" SIG", " Sistemas de Informações Geográficas ", texto)
+        texto = re.sub("AIS", " avaliações integradas semestrais ", texto)
         return texto
 
-    @staticmethod
-    def converter_termos_2013(texto):
-        texto = re.sub(" ECM", " Gerenciamento de Conteúdo Corporativo ".lower(), texto)
-        texto = re.sub("PEA", " Processo de Ensino e de Aprendizagem ".lower(), texto)
-        texto = re.sub("ACs", " autômatos celulares ".lower(), texto)
-        texto = re.sub("AC", " autômato celular ".lower(), texto)
-        texto = re.sub("AC", " autômato celular ".lower(), texto)
-        texto = re.sub("SOFTEX", " Programas de Excelência do Software Brasileiro ".lower(), texto)
-        texto = re.sub("APF", " Administração Pública Federal ".lower(), texto)
-        texto = re.sub(" TCU", " Tribunal de Contas da União ".lower(), texto)
-        texto = re.sub(" SIG", " Sistemas de Informações Geográficas ".lower(), texto)
-        texto = re.sub(" ICTs", " Information and Communication Technologies ".lower(), texto)
-        texto = re.sub(" ICT", " Information and Communication Technology ".lower(), texto)
-        texto = re.sub(" BD ", " banco de dados ".lower(), texto)
-        texto = re.sub(" OCR", " Identificação Óptica de Caractere ".lower(), texto)
-        texto = re.sub(" TACO", " Tabela Brasileira de Composição de Alimentos ".lower(), texto)
-        texto = re.sub(" TI", " Tecnologia da Informação ".lower(), texto)
-        texto = re.sub(" EAD", " Educação a Distância ".lower(), texto)
-        texto = re.sub(" AR ", " Aprendizado por Reforço ".lower(), texto)
-        texto = re.sub(" TIC", " Tecnologia da Informação e Comunicação ".lower(), texto)
-        texto = re.sub(" RSSF ", " Redes de Sensores Sem Fio ".lower(), texto)
-        texto = re.sub(" SGS ", " Sistema de Gestão de Segurança ".lower(), texto)
-        texto = re.sub(" AE ", " alinhamento estratégico ".lower(), texto)
-        texto = re.sub(" IA ", " Inteligência Artificial ".lower(), texto)
-        texto = re.sub(" AVAs", " Ambientes Virtuais de Aprendizagem ".lower(), texto)
-        texto = re.sub(" AVA", " Ambiente Virtual de Aprendizagem ".lower(), texto)
-        texto = re.sub(" CAD ", " Desenho Assistido por Computador ".lower(), texto)
-        texto = re.sub(" RBC ", " Raciocínio Baseado em Casos ".lower(), texto)
-        texto = re.sub(" IES ", " Instituições de Ensino Superior ".lower(), texto)
-        texto = re.sub(" TI", " Tecnologia da Informação ".lower(), texto)
-        texto = re.sub(" SUS ", " Sistema Único de Saúde ".lower(), texto)
-        texto = re.sub(" AVAE", " ambiente virtual de aprendizagem e ensino ".lower(), texto)
-        texto = re.sub("  ", "  ".lower(), texto)
+    def converter_termos_2013(self, texto):
+        texto = re.sub("ECM", " Gerenciamento de Conteúdo Corporativo ", texto)
+        texto = re.sub("PEA", " Processo de Ensino e de Aprendizagem ", texto)
+        texto = re.sub("ACs", " Autômatos Celulares ", texto)
+        texto = re.sub("AC", " Autômato Celular ", texto)
+        texto = re.sub("SOFTEX", " Programas de Excelência do Software Brasileiro ", texto)
+        texto = re.sub("APF", " Administração Pública Federal ", texto)
+        texto = re.sub(" TCU", " Tribunal de Contas da União ", texto)
+        texto = re.sub(" SIG", " Sistemas de Informações Geográficas ", texto)
+        texto = re.sub(" ICTs", " Information and Communication Technologies ", texto)
+        texto = re.sub(" ICT", " Information and Communication Technology ", texto)
+        texto = re.sub(" BD ", " Banco de Dados ", texto)
+        texto = re.sub(" OCR", " Identificação Óptica de Caractere ", texto)
+        texto = re.sub(" TACO", " Tabela Brasileira de Composição de Alimentos ", texto)
+        texto = re.sub(" TI", " Tecnologia da Informação ", texto)
+        texto = re.sub(" EAD", " Educação a Distância ", texto)
+        texto = re.sub(" AR ", " Aprendizado por Reforço ", texto)
+        texto = re.sub(" TIC", " Tecnologia da Informação e Comunicação ", texto)
+        texto = re.sub(" RSSF ", " Redes de Sensores Sem Fio ", texto)
+        texto = re.sub(" SGS ", " Sistema de Gestão de Segurança ", texto)
+        texto = re.sub(" AE ", " Alinhamento Estratégico ", texto)
+        texto = re.sub(" IA ", " Inteligência Artificial ", texto)
+        texto = re.sub(" AVAs", " Ambientes Virtuais de Aprendizagem ", texto)
+        texto = re.sub(" AVA", " Ambiente Virtual de Aprendizagem ", texto)
+        texto = re.sub(" CAD ", " Desenho Assistido por Computador ", texto)
+        texto = re.sub(" RBC ", " Raciocínio Baseado em Casos ", texto)
+        texto = re.sub(" IES ", " Instituições de Ensino Superior ", texto)
+        texto = re.sub(" TI", " Tecnologia da Informação ", texto)
+        texto = re.sub(" SUS ", " Sistema Único de Saúde ", texto)
+        texto = re.sub(" AVAE", " Ambiente Virtual de Aprendizagem e Ensino ", texto)
         return texto
 
-    @staticmethod
-    def converter_termos_2014(texto):
-        texto = re.sub(" ABD ", " Aplicação de Banco de Dados ".lower(), texto)
-        texto = re.sub(" BD ", " Banco de Dados ".lower(), texto)
-        texto = re.sub(" IT ", " Information Technology ".lower(), texto)
-        texto = re.sub(" GQA ", " Garantia da Qualidade ".lower(), texto)
-        texto = re.sub("BDT", " banco de dados de teste ".lower(), texto)
-        texto = re.sub(" TI ", " Tecnologia da Informação ".lower(), texto)
-        texto = re.sub(" SND ", " Sistema Neural para Apoio ao Diagnóstico de Diabetes ".lower(), texto)
-        texto = re.sub(" AG ", " Algoritmo Genético ".lower(), texto)
-        texto = re.sub(" AGs ", " Algoritmos Genéticos ".lower(), texto)
-        texto = re.sub(" BI ", " Business Intelligence ".lower(), texto)
-        texto = re.sub(" FEES ", " Fórum de Educação em Engenharia de Software ".lower(), texto)
-        texto = re.sub(" TCC ", " Trabalho de Conclusão de Curso ".lower(), texto)
-        texto = re.sub(" ITIL ", " Information  Technology Infrastructure Library ".lower(), texto)
-        texto = re.sub(" BDR ", " Banco de Dados de Referência ".lower(), texto)
-        texto = re.sub(" SUS ", " Sistema Único de Saúde ".lower(), texto)
-        texto = re.sub(" EAD ", " Educação a Distância ".lower(), texto)
-        texto = re.sub(" TM ", " Teste de Mutação ".lower(), texto)
-        texto = re.sub("RNAs", " Redes Neurais Artificiais ".lower(), texto)
-        texto = re.sub(" RNA ", " Rede Neurail Artificial ".lower(), texto)
-        texto = re.sub(" SESAU ", " Secretaria  Estadual de Saúde ".lower(), texto)
-        texto = re.sub(" BDP ", " Banco de Dados de Produção ".lower(), texto)
-        texto = re.sub(" RUP ", " Rational Unified  Process ".lower(), texto)
-        texto = re.sub(" AGCA ", " Algoritmos Genéticos Canônicos ".lower(), texto)
-        texto = re.sub(" TM ", " Recomendação Fuzzy de Objeto de Aprendizagem ".lower(), texto)
-        texto = re.sub(" OA ", " Objeto de Aprendizagem ".lower(), texto)
-        texto = re.sub(" OMS ", " Organização Mundial da Saúde ".lower(), texto)
-        texto = re.sub(" UI ", " interface do usuário ".lower(), texto)
-        texto = re.sub(" FV ", " fotovoltaica ".lower(), texto)
-        texto = re.sub(" OBAA ", " Aprendizagem Baseados em Agentes ".lower(), texto)
-        texto = re.sub(" SI ", " Sistemas de Informação ".lower(), texto)
+    def converter_termos_2014(self, texto):
+        texto = re.sub(" ABD ", " Aplicação de Banco de Dados ", texto)
+        texto = re.sub(" BD ", " Banco de Dados ", texto)
+        texto = re.sub(" IT ", " Information Technology ", texto)
+        texto = re.sub(" GQA ", " Garantia da Qualidade ", texto)
+        texto = re.sub("BDT", " Banco de Dados de Teste ", texto)
+        texto = re.sub(" TI ", " Tecnologia da Informação ", texto)
+        texto = re.sub(" SND ", " Sistema Neural para Apoio ao Diagnóstico de Diabetes ", texto)
+        texto = re.sub(" AG ", " Algoritmo Genético ", texto)
+        texto = re.sub(" AGs ", " Algoritmos Genéticos ", texto)
+        texto = re.sub(" BI ", " Business Intelligence ", texto)
+        texto = re.sub(" FEES ", " Fórum de Educação em Engenharia de Software ", texto)
+        texto = re.sub(" TCC ", " Trabalho de Conclusão de Curso ", texto)
+        texto = re.sub(" ITIL ", " Information  Technology Infrastructure Library ", texto)
+        texto = re.sub(" BDR ", " Banco de Dados de Referência ", texto)
+        texto = re.sub(" SUS ", " Sistema Único de Saúde ", texto)
+        texto = re.sub(" EAD ", " Educação a Distância ", texto)
+        texto = re.sub(" TM ", " Teste de Mutação ", texto)
+        texto = re.sub("RNAs", " Redes Neurais Artificiais ", texto)
+        texto = re.sub(" RNA ", " Rede Neurail Artificial ", texto)
+        texto = re.sub(" SESAU ", " Secretaria  Estadual de Saúde ", texto)
+        texto = re.sub(" BDP ", " Banco de Dados de Produção ", texto)
+        texto = re.sub(" RUP ", " Rational Unified  Process ", texto)
+        texto = re.sub(" AGCA ", " Algoritmos Genéticos Canônicos ", texto)
+        texto = re.sub(" TM ", " Recomendação Fuzzy de Objeto de Aprendizagem ", texto)
+        texto = re.sub(" OA ", " Objeto de Aprendizagem ", texto)
+        texto = re.sub(" OMS ", " Organização Mundial da Saúde ", texto)
+        texto = re.sub(" UI ", " Interface do Usuário ", texto)
+        texto = re.sub(" FV ", " Fotovoltaica ", texto)
+        texto = re.sub(" OBAA ", " Aprendizagem Baseados em Agentes ", texto)
+        texto = re.sub(" SI ", " Sistemas de Informação ", texto)
         return texto
 
-    @staticmethod
-    def converter_termos_2015(texto):
-        texto = re.sub(" TIC", " tecnologias da  comunicação e informação ".lower(), texto)
-        texto = re.sub(" IA", " Inteligência Artificial ".lower(), texto)
-        texto = re.sub(" CAE ", " Coordenação de Assistência Estudantil ".lower(), texto)
-        texto = re.sub(" CNES ", " Cadastro Nacional de Estabelecimentos de Saúde ".lower(), texto)
-        texto = re.sub(" IA ", " Inteligência Artificial ".lower(), texto)
-        texto = re.sub(" OMS ", " organização mundial de saúde ".lower(), texto)
-        texto = re.sub(" IPS", " sistemas de prevenção de intrusão ".lower(), texto)
-        texto = re.sub(" AR", " aprendizagem por reforço ".lower(), texto)
-        texto = re.sub(" OA", " Objeto de Aprendizagem ".lower(), texto)
+    def converter_termos_2015(self, texto):
+        texto = re.sub(" TIC", " Tecnologias da Comunicação e Informação ", texto)
+        texto = re.sub(" IA", " Inteligência Artificial ", texto)
+        texto = re.sub(" CAE ", " Coordenação de Assistência Estudantil ", texto)
+        texto = re.sub(" CNES ", " Cadastro Nacional de Estabelecimentos de Saúde ", texto)
+        texto = re.sub(" IA ", " Inteligência Artificial ", texto)
+        texto = re.sub(" OMS ", " Organização Mundial de Saúde ", texto)
+        texto = re.sub(" IPS", " Sistemas de Prevenção de Intrusão ", texto)
+        texto = re.sub(" AR", " Aprendizagem por Reforço ", texto)
+        texto = re.sub(" OA", " Objeto de Aprendizagem ", texto)
         return texto
 
-    @staticmethod
-    def converter_termos_2016(texto):
-        texto = re.sub(" OA", " Objeto de Aprendizagem ".lower(), texto)
-        texto = re.sub(" IA ", " Inteligência Artificial ".lower(), texto)
-        texto = re.sub(" TI ", " Tecnologia da Informação ".lower(), texto)
-        texto = re.sub(" IT ", " Information Technology ".lower(), texto)
-        texto = re.sub(" IPS ", " Sistema de Prevenção de Intrusão ".lower(), texto)
-        texto = re.sub(" AE", " algoritmo evolucionário ".lower(), texto)
-        texto = re.sub(" GD ", " gradiente descendente ".lower(), texto)
-        texto = re.sub(" AVAs ", " ambientes virtuais de aprendizagem ".lower(), texto)
-        texto = re.sub(" BI ", " Business Intelligence ".lower(), texto)
-        texto = re.sub(" VANTs", " Veículos Aéreos Não-Tripulados  ".lower(), texto)
-        texto = re.sub(" APF", " Administração Pública Federal Brasileira ".lower(), texto)
+    def converter_termos_2016(self, texto):
+        texto = re.sub(" OA", " Objeto de Aprendizagem ", texto)
+        texto = re.sub(" IA ", " Inteligência Artificial ", texto)
+        texto = re.sub(" TI ", " Tecnologia da Informação ", texto)
+        texto = re.sub(" IT ", " Information Technology ", texto)
+        texto = re.sub(" IPS ", " Sistema de Prevenção de Intrusão ", texto)
+        texto = re.sub(" AE", " Algoritmo Evolucionário ", texto)
+        texto = re.sub(" GD ", " Gradiente Descendente ", texto)
+        texto = re.sub(" AVAs ", " Ambientes Virtuais de Aprendizagem ", texto)
+        texto = re.sub(" BI ", " Business Intelligence ", texto)
+        texto = re.sub(" VANTs", " Veículos Aéreos Não-Tripulados  ", texto)
+        texto = re.sub(" APF", " Administração Pública Federal Brasileira ", texto)
         return texto
 
-    @staticmethod
-    def converter_termos_2017(texto):
-        texto = re.sub(" VANTs", " Veículos Aéreos Não-Tripulados  ".lower(), texto)
-        texto = re.sub(" BI ", " Business Intelligence ".lower(), texto)
-        texto = re.sub(" IDS ", " Sistema de Detecção de Intrusão ".lower(), texto)
-        texto = re.sub(" RBD ", " Diagrama de Blocos de Confiabilidade ".lower(), texto)
-        texto = re.sub(" TI ", " Tecnologia da Informação ".lower(), texto)
-        texto = re.sub(" IT ", " Information Technology ".lower(), texto)
-        texto = re.sub(" IPS ", " Sistema de Prevenção de Intrusão ".lower(), texto)
-        texto = re.sub(" AE", " algoritmo evolucionário ".lower(), texto)
-        texto = re.sub(" GD ", " gradiente descendente ".lower(), texto)
-        texto = re.sub(" AVAs ", " ambientes virtuais de aprendizagem ".lower(), texto)
-        texto = re.sub(" HDFS ", " Sistema de arquivos distribuído Hadoop ".lower(), texto)
-        texto = re.sub(" ACML ", " Acessibilidade Comunicativa por Meio da Libras ".lower(), texto)
-        texto = re.sub(" OLAP ", " Online Analytical Processing ".lower(), texto)
-        texto = re.sub(" SBC ", " Sociedade Brasileira de Computação ".lower(), texto)
-        texto = re.sub(" APL ", " Arranjo Produtivo Local ".lower(), texto)
-        texto = re.sub(" AIT ", " Auto de Infração de Trânsito ".lower(), texto)
-        texto = re.sub(" AITs", " Auto de Infração de Trânsito ".lower(), texto)
+    def converter_termos_2017(self, texto):
+        texto = re.sub(" VANTs", " Veículos Aéreos Não-Tripulados ", texto)
+        texto = re.sub(" BI ", " Business Intelligence ", texto)
+        texto = re.sub(" IDS ", " Sistema de Detecção de Intrusão ", texto)
+        texto = re.sub(" RBD ", " Diagrama de Blocos de Confiabilidade ", texto)
+        texto = re.sub(" TI ", " Tecnologia da Informação ", texto)
+        texto = re.sub(" IT ", " Information Technology ", texto)
+        texto = re.sub(" IPS ", " Sistema de Prevenção de Intrusão ", texto)
+        texto = re.sub(" AE", " Algoritmo Evolucionário ", texto)
+        texto = re.sub(" GD ", " Gradiente Descendente ", texto)
+        texto = re.sub(" AVAs ", " Ambientes Virtuais de Aprendizagem ", texto)
+        texto = re.sub(" HDFS ", " Sistema de Arquivos istribuído Hadoop ", texto)
+        texto = re.sub(" ACML ", " Acessibilidade Comunicativa por Meio da Libras ", texto)
+        texto = re.sub(" OLAP ", " Online Analytical Processing ", texto)
+        texto = re.sub(" SBC ", " Sociedade Brasileira de Computação ", texto)
+        texto = re.sub(" APL ", " Arranjo Produtivo Local ", texto)
+        texto = re.sub(" AIT ", " Auto de Infração de Trânsito ", texto)
+        texto = re.sub(" AITs", " Auto de Infração de Trânsito ", texto)
         return texto
 
-    @staticmethod
-    def converter_termos_2018(texto):
-        texto = re.sub("PAGMG", " Árvore Geradora Mínima Generalizado ".lower(), texto)
-        texto = re.sub(" SIGAA ", " Sistema Integrado de Gestão  Acadêmica de Atividades ".lower(), texto)
-        texto = re.sub(" IHC ", " interface humano computador ".lower(), texto)
-        texto = re.sub(" UBS ", " Unidade de Beneficiamento de Sementes ".lower(), texto)
-        texto = re.sub(" TSI ", " Tecnologia em Sistemas para Internet ".lower(), texto)
-        texto = re.sub(" CBQ ", " Enfileiramento Baseado em Classes ".lower(), texto)
+    def converter_termos_2018(self, texto):
+        texto = re.sub("PAGMG", " Árvore Geradora Mínima Generalizado ", texto)
+        texto = re.sub(" SIGAA ", " Sistema Integrado de Gestão  Acadêmica de Atividades ", texto)
+        texto = re.sub(" IHC ", " Interface Humano Computador ", texto)
+        texto = re.sub(" UBS ", " Unidade de Beneficiamento de Sementes ", texto)
+        texto = re.sub(" TSI ", " Tecnologia em Sistemas para Internet ", texto)
+        texto = re.sub(" CBQ ", " Enfileiramento Baseado em Classes ", texto)
         return texto
 
-    @staticmethod
-    def converter_termos_2019(texto):
-        texto = re.sub(" SBRC ", " Simpósio  Brasileiro de Redes de Computadores ".lower(), texto)
-        texto = re.sub(" SIGAA ", " Sistema Integrado de Gestão  Acadêmica de Atividades ".lower(), texto)
-        texto = re.sub(" EAI ", " Integração de Aplicações Empresariais ".lower(), texto)
-        texto = re.sub(" AVAs ", " ambientes virtuais de aprendizagem ".lower(), texto)
-        texto = re.sub(" AVA ", " Ambientes Virtuais de Aprendizagem ".lower(), texto)
-        texto = re.sub(" RFID ", " Identificação por Rádio Frequência ".lower(), texto)
-        texto = re.sub(" OA", " Objeto de Aprendizagem ".lower(), texto)
-        texto = re.sub(" CFD ", " Dinâmica de fluídos computacional ".lower(), texto)
-        texto = re.sub(" PSNR ", " Relação sinal ruído de pico ".lower(), texto)
-        texto = re.sub(" PNL ", " Processamento Natural de Linguagem ".lower(), texto)
-        texto = re.sub(" TI ", " Tecnologia da Informação ".lower(), texto)
-        texto = re.sub(" ANOVA ", " Análise de Variância ".lower(), texto)
-        texto = re.sub(" SETI ", " Secretaria Especial de Tecnologia da Informação ".lower(), texto)
-        texto = re.sub(" MVP ", " Produto Mínimo Viável ".lower(), texto)
+    def converter_termos_2019(self, texto):
+        texto = re.sub(" SBRC ", " Simpósio Brasileiro de Redes de Computadores ", texto)
+        texto = re.sub(" SIGAA ", " Sistema Integrado de Gestão Acadêmica de Atividades ", texto)
+        texto = re.sub(" EAI ", " Integração de Aplicações Empresariais ", texto)
+        texto = re.sub(" AVAs ", " Ambientes Virtuais de Aprendizagem ", texto)
+        texto = re.sub(" AVA ", " Ambiente Virtual de Aprendizagem ", texto)
+        texto = re.sub(" RFID ", " Identificação por Rádio Frequência ", texto)
+        texto = re.sub(" OA", " Objeto de Aprendizagem ", texto)
+        texto = re.sub(" CFD ", " Dinâmica de Fluídos Computacional ", texto)
+        texto = re.sub(" PSNR ", " Relação Sinal Ruído de Pico ", texto)
+        texto = re.sub(" PNL", " Processamento Natural de Linguagem ", texto)
+        texto = re.sub(" TI ", " Tecnologia da Informação ", texto)
+        texto = re.sub(" ANOVA ", " Análise de Variância ", texto)
+        texto = re.sub(" SETI ", " Secretaria Especial de Tecnologia da Informação ", texto)
+        texto = re.sub(" MVP ", " Produto Mínimo Viável ", texto)
         return texto
 
-    @staticmethod
-    def remover_textos_layout(texto):
+    def remover_textos_layout(self, texto):
         texto = re.sub(
             "Anais do EATI - Encontro Anual de Tecnologia da Informação e Semana Acadêmica de Tecnologia da Informação",
             "", texto.lstrip())
@@ -320,4 +285,244 @@ class PreProcessamento:
         texto = re.sub("Semana Acadêmica de Tecnologia da Informação", "", texto.lstrip())
         texto = re.sub("anais2018.pdf", "", texto.lstrip())
         texto = re.sub("                                             ", "", texto.lstrip())
+        texto = re.sub("Microsoft Word", "", texto.lstrip())
+        texto = re.sub("anais2019 sem pendentes", "", texto.lstrip())
         return texto.lstrip()
+
+    def remover_numeros(self, texto):
+        texto_sem_numeros = re.sub(r'\d', "", texto)
+        return texto_sem_numeros
+
+    def remover_caracteres_especiais(self, texto):
+        texto_sem_carac_esp = re.sub(r'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕàÀÜüçÇ ]', "", texto)
+        return texto_sem_carac_esp
+
+    def remover_sequencia_espaco_branco(self, texto):
+        padrao = re.compile(r"(\s)\1{1,}")
+        return padrao.sub(r"\1", texto)
+
+    def remover_palavras_por_tamanho(self, texto, limite):
+        lista_texto = self.tokenizar_texto(texto)
+        lista_palavras_retorno = []
+        separador = ' '
+        for palavra in lista_texto:
+            if len(palavra) > limite:
+                lista_palavras_retorno.append(palavra)
+        texto_pos_remocao = separador.join(lista_palavras_retorno)
+        return texto_pos_remocao
+
+    def remover_pronomes_obliquos(self, texto):
+        texto = re.sub("-o", "", texto)
+        texto = re.sub("-e", "", texto)
+        texto = re.sub("-a", "", texto)
+        texto = re.sub("-lo", "", texto)
+        texto = re.sub("-la", "", texto)
+        texto = re.sub("-los", "", texto)
+        texto = re.sub("-las", "", texto)
+        texto = re.sub("-no", "", texto)
+        texto = re.sub("-na", "", texto)
+        texto = re.sub("-nas", "", texto)
+        texto = re.sub("-as", "", texto)
+        texto = re.sub("-os", "", texto)
+        texto = re.sub("-me", "", texto)
+        texto = re.sub("-te", "", texto)
+        texto = re.sub("-se", "", texto)
+        texto = re.sub("-lhe", "", texto)
+        texto = re.sub("-lhes", "", texto)
+        texto = re.sub("-nos", "", texto)
+        texto = re.sub("-vos", "", texto)
+        texto = re.sub("e/ou", "e ou", texto)
+        texto = re.sub("cliente/servidor", "cliente servidor", texto)
+        texto = re.sub("pré-estabelecidos", "pré estabelecidos", texto)
+        return texto
+
+    def remover_estados(self, texto):
+        texto = re.sub("/AC", "", texto)
+        texto = re.sub("/AL", "", texto)
+        texto = re.sub("/AP", "", texto)
+        texto = re.sub("/AM", "", texto)
+        texto = re.sub("/BA", "", texto)
+        texto = re.sub("/CE", "", texto)
+        texto = re.sub("/DF", "", texto)
+        texto = re.sub("/ES", "", texto)
+        texto = re.sub("/MA", "", texto)
+        texto = re.sub("/MT", "", texto)
+        texto = re.sub("/MS", "", texto)
+        texto = re.sub("/MG", "", texto)
+        texto = re.sub("/PA", "", texto)
+        texto = re.sub("/PB", "", texto)
+        texto = re.sub("/PR", "", texto)
+        texto = re.sub("/PE", "", texto)
+        texto = re.sub("/PI", "", texto)
+        texto = re.sub("/RJ", "", texto)
+        texto = re.sub("/RN", "", texto)
+        texto = re.sub("/RS", "", texto)
+        texto = re.sub("/RO", "", texto)
+        texto = re.sub("/RR", "", texto)
+        texto = re.sub("/SC", "", texto)
+        texto = re.sub("/SP", "", texto)
+        texto = re.sub("/SE", "", texto)
+        texto = re.sub("/TO", "", texto)
+        texto = re.sub("-AC", "", texto)
+        texto = re.sub("-AL", "", texto)
+        texto = re.sub("-AP", "", texto)
+        texto = re.sub("-AM", "", texto)
+        texto = re.sub("-BA", "", texto)
+        texto = re.sub("-CE", "", texto)
+        texto = re.sub("-DF", "", texto)
+        texto = re.sub("-ES", "", texto)
+        texto = re.sub("-MA", "", texto)
+        texto = re.sub("-MT", "", texto)
+        texto = re.sub("-MS", "", texto)
+        texto = re.sub("-MG", "", texto)
+        texto = re.sub("-PA", "", texto)
+        texto = re.sub("-PB", "", texto)
+        texto = re.sub("-PR", "", texto)
+        texto = re.sub("-PE", "", texto)
+        texto = re.sub("-PI", "", texto)
+        texto = re.sub("-RJ", "", texto)
+        texto = re.sub("-RN", "", texto)
+        texto = re.sub("-RS", "", texto)
+        texto = re.sub("-RO", "", texto)
+        texto = re.sub("-RR", "", texto)
+        texto = re.sub("-SC", "", texto)
+        texto = re.sub("-SP", "", texto)
+        texto = re.sub("-SE", "", texto)
+        texto = re.sub("-TO", "", texto)
+        return texto
+
+    def pre_processamento_2011(self, texto):
+        texto = self.remover_sequencia_espaco_branco(texto)
+        texto = self.remover_textos_layout(texto)
+        texto = self.remover_enderecos_emails(texto)
+        texto = self.remover_url(texto)
+        texto = self.remover_numeros(texto)
+        texto = self.remover_pronomes_obliquos(texto)
+        texto = self.remover_estados(texto)
+        texto = self.remover_caracteres_especiais(texto)
+        texto = self.remover_sequencia_espaco_branco(texto)
+        texto = self.converter_termos_geral(texto)
+        texto = self.converter_termos_2011(texto)
+        texto = self.remover_stopwords(texto)
+        texto = self.remover_palavras_por_tamanho(texto, 1)
+        texto = self.remover_acentos(texto)
+        return texto
+
+    def pre_processamento_2013(self, texto):
+        texto = self.remover_sequencia_espaco_branco(texto)
+        texto = self.remover_textos_layout(texto)
+        texto = self.remover_enderecos_emails(texto)
+        texto = self.remover_url(texto)
+        texto = self.remover_numeros(texto)
+        texto = self.remover_pronomes_obliquos(texto)
+        texto = self.remover_estados(texto)
+        texto = self.remover_caracteres_especiais(texto)
+        texto = self.remover_sequencia_espaco_branco(texto)
+        texto = self.converter_termos_geral(texto)
+        texto = self.converter_termos_2013(texto)
+        texto = self.remover_stopwords(texto)
+        texto = self.remover_palavras_por_tamanho(texto, 1)
+        texto = self.remover_acentos(texto)
+        return texto
+
+    def pre_processamento_2014(self, texto):
+        texto = self.remover_sequencia_espaco_branco(texto)
+        texto = self.remover_textos_layout(texto)
+        texto = self.remover_enderecos_emails(texto)
+        texto = self.remover_url(texto)
+        texto = self.remover_numeros(texto)
+        texto = self.remover_pronomes_obliquos(texto)
+        texto = self.remover_estados(texto)
+        texto = self.remover_caracteres_especiais(texto)
+        texto = self.remover_sequencia_espaco_branco(texto)
+        texto = self.converter_termos_geral(texto)
+        texto = self.converter_termos_2014(texto)
+        texto = self.remover_stopwords(texto)
+        texto = self.remover_palavras_por_tamanho(texto, 1)
+        texto = self.remover_acentos(texto)
+        return texto
+
+    def pre_processamento_2015(self, texto):
+        texto = self.remover_sequencia_espaco_branco(texto)
+        texto = self.remover_textos_layout(texto)
+        texto = self.remover_enderecos_emails(texto)
+        texto = self.remover_url(texto)
+        texto = self.remover_numeros(texto)
+        texto = self.remover_pronomes_obliquos(texto)
+        texto = self.remover_estados(texto)
+        texto = self.remover_caracteres_especiais(texto)
+        texto = self.remover_sequencia_espaco_branco(texto)
+        texto = self.converter_termos_geral(texto)
+        texto = self.converter_termos_2015(texto)
+        texto = self.remover_stopwords(texto)
+        texto = self.remover_palavras_por_tamanho(texto, 1)
+        texto = self.remover_acentos(texto)
+        return texto
+
+    def pre_processamento_2016(self, texto):
+        texto = self.remover_sequencia_espaco_branco(texto)
+        texto = self.remover_textos_layout(texto)
+        texto = self.remover_enderecos_emails(texto)
+        texto = self.remover_url(texto)
+        texto = self.remover_numeros(texto)
+        texto = self.remover_pronomes_obliquos(texto)
+        texto = self.remover_estados(texto)
+        texto = self.remover_caracteres_especiais(texto)
+        texto = self.remover_sequencia_espaco_branco(texto)
+        texto = self.converter_termos_geral(texto)
+        texto = self.converter_termos_2016(texto)
+        texto = self.remover_stopwords(texto)
+        texto = self.remover_palavras_por_tamanho(texto, 1)
+        texto = self.remover_acentos(texto)
+        return texto
+
+    def pre_processamento_2017(self, texto):
+        texto = self.remover_sequencia_espaco_branco(texto)
+        texto = self.remover_textos_layout(texto)
+        texto = self.remover_enderecos_emails(texto)
+        texto = self.remover_url(texto)
+        texto = self.remover_numeros(texto)
+        texto = self.remover_pronomes_obliquos(texto)
+        texto = self.remover_estados(texto)
+        texto = self.remover_caracteres_especiais(texto)
+        texto = self.remover_sequencia_espaco_branco(texto)
+        texto = self.converter_termos_geral(texto)
+        texto = self.converter_termos_2017(texto)
+        texto = self.remover_stopwords(texto)
+        texto = self.remover_palavras_por_tamanho(texto, 1)
+        texto = self.remover_acentos(texto)
+        return texto
+
+    def pre_processamento_2018(self, texto):
+        texto = self.remover_sequencia_espaco_branco(texto)
+        texto = self.remover_textos_layout(texto)
+        texto = self.remover_enderecos_emails(texto)
+        texto = self.remover_url(texto)
+        texto = self.remover_numeros(texto)
+        texto = self.remover_pronomes_obliquos(texto)
+        texto = self.remover_estados(texto)
+        texto = self.remover_caracteres_especiais(texto)
+        texto = self.remover_sequencia_espaco_branco(texto)
+        texto = self.converter_termos_geral(texto)
+        texto = self.converter_termos_2018(texto)
+        texto = self.remover_stopwords(texto)
+        texto = self.remover_palavras_por_tamanho(texto, 1)
+        texto = self.remover_acentos(texto)
+        return texto
+
+    def pre_processamento_2019(self, texto):
+        texto = self.remover_sequencia_espaco_branco(texto)
+        texto = self.remover_textos_layout(texto)
+        texto = self.remover_enderecos_emails(texto)
+        texto = self.remover_url(texto)
+        texto = self.remover_numeros(texto)
+        texto = self.remover_pronomes_obliquos(texto)
+        texto = self.remover_estados(texto)
+        texto = self.remover_caracteres_especiais(texto)
+        texto = self.remover_sequencia_espaco_branco(texto)
+        texto = self.converter_termos_geral(texto)
+        texto = self.converter_termos_2019(texto)
+        texto = self.remover_stopwords(texto)
+        texto = self.remover_palavras_por_tamanho(texto, 1)
+        texto = self.remover_acentos(texto)
+        return texto
