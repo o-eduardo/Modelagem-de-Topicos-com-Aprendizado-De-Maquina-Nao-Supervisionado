@@ -558,3 +558,7 @@ et
 al
 CEP
 cep
+varios
+varias
+vários
+várias

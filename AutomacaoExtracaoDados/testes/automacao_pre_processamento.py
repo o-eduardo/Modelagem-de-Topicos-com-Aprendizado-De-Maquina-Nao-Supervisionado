@@ -1,4 +1,4 @@
-from pre_processamento_dados.pre_processamento import PreProcessamento
+from preprocessamento.pre_processamento import PreProcessamento
 from utils.ArquivosUtils import ArquivosUtils
 
 

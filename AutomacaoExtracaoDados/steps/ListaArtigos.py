@@ -1,4 +1,4 @@
-from Base.BasePage import BasePage
+from base.BasePage import BasePage
 
 class ListaArtigos(BasePage):
 

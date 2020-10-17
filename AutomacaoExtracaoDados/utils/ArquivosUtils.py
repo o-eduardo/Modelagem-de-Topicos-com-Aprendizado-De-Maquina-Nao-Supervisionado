@@ -133,7 +133,7 @@ class ArquivosUtils:
             arquivo = open(nome_arquivo_completo, "w", encoding='utf-8')
             for item_artigo in lista_conteudo_texto:
                 arquivo.write(item_artigo + '\n')
-        except :
+        except:
             print("Erro na geração do arquivo Unificado de textos! \n")
         finally:
             arquivo.close()
@@ -152,10 +152,9 @@ class ArquivosUtils:
             nome_arquivo_corpus_ano = nome_padrao_arquivo + "_" + str(ano)
             self.gerar_arquivo_texto_unificado(lista_texto_arquivos, caminho_destino_arquivo, nome_arquivo_corpus_ano)
 
-
     def validar_conteudo_artigo(self, texto_arquivo, caminho_arq):
         try:
-            #assert ("EATI" in texto_arquivo)
+            # assert ("EATI" in texto_arquivo)
             assert "resumo" in texto_arquivo.lower()
             assert "refer" in texto_arquivo.lower()
         except AssertionError:
@@ -165,7 +164,7 @@ class ArquivosUtils:
         lista_conteudo_texto = []
         print("\n*************************************************************************")
         print("Extraindo texto dos PDF's da edição {0} em {1}\n".format(ano_edicao, caminho_diretorio_pdfs))
-        self.extrair_texto_pdfs(caminho_diretorio_pdfs, lista_arquivos_diretorio,  lista_conteudo_texto)
+        self.extrair_texto_pdfs(caminho_diretorio_pdfs, lista_arquivos_diretorio, lista_conteudo_texto)
         print("\n*************************************************************************")
         print("\nDados de texto extraidos com sucesso!".format(caminho_diretorio_pdfs))
         return lista_conteudo_texto
@@ -188,8 +187,8 @@ class ArquivosUtils:
     def obter_lista_novas_stopwords(caminho_stopwords):
         novas_stopwords = []
         ArquivosUtils.validar_arquivo(caminho_stopwords, ".txt")
-        #print("\n*************************************************************************\n")
-        #print("Extraindo StopWords ...\n")
+        # print("\n*************************************************************************\n")
+        # print("Extraindo StopWords ...\n")
         try:
             arquivo_stopwords = open(caminho_stopwords, "r", encoding="utf-8")
             for linha in arquivo_stopwords:
@@ -199,13 +198,13 @@ class ArquivosUtils:
             print("Erro na extração de StopWords! \n")
         finally:
             arquivo_stopwords.close()
-            #print("Extração das stopWords realizada com sucesso! \n")
-            #print("*************************************************************************\n")
+            # print("Extração das stopWords realizada com sucesso! \n")
+            # print("*************************************************************************\n")
         return novas_stopwords
 
     @staticmethod
     def extracao_artigos_listas(nome_do_arquivo):
-        caminho_fixo = "ArtefatosSaida\CorpusDados/"
+        caminho_fixo = 'C:\\PGC\\Projeto_PipeLine\\PGC-LDA\\AutomacaoExtracaoDados\\ArtefatosSaida\\CorpusDados\\'
         nome_arq_completo = caminho_fixo + nome_do_arquivo
         arquivo = open(nome_arq_completo + ".txt", "r", encoding="utf-8")
         lista_artigo = []

@@ -76,7 +76,7 @@ def main():
     arquivos_ferramentas = ArquivosUtils()
     arquivos_ferramentas.criar_mapeamento_csv(artigos_mapeamento, caminho)
     driver.close()
-    dataSaida = pd.read_csv('ArtefatosSaida/mapeamento_Corpus.csv')
+    dataSaida = pd.read_csv('../ArtefatosSaida/mapeamento_Corpus.csv')
     ids_artigos = list(dataSaida["ID do Artigo"])
     assert len(artigos_mapeamento) == 308
     assert len(ids_artigos) == len(set(ids_artigos))

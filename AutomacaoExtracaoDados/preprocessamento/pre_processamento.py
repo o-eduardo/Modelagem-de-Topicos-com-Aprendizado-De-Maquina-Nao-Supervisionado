@@ -22,7 +22,7 @@ class PreProcessamento:
     def remover_stopwords(self, texto):
         stop_words = set(stopwords.words('portuguese'))
         stop_words_us = set(stopwords.words('english'))
-        new_stopwords = ArquivosUtils.obter_lista_novas_stopwords('ArtefatosEntrada/stopwords.txt')
+        new_stopwords = ArquivosUtils.obter_lista_novas_stopwords('C:\\PGC\Projeto_PipeLine\\PGC-LDA\\AutomacaoExtracaoDados\\ArtefatosEntrada\\stopwords.txt')
         stop_words.update(new_stopwords)
         stop_words.update([stp.lower() for stp in new_stopwords])
         stop_words.update(stop_words_us)
