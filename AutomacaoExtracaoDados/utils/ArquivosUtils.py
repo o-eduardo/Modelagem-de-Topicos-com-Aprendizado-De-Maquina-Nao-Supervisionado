@@ -188,8 +188,8 @@ class ArquivosUtils:
     def obter_lista_novas_stopwords(caminho_stopwords):
         novas_stopwords = []
         ArquivosUtils.validar_arquivo(caminho_stopwords, ".txt")
-        print("\n*************************************************************************\n")
-        print("Extraindo StopWords ...\n")
+        #print("\n*************************************************************************\n")
+        #print("Extraindo StopWords ...\n")
         try:
             arquivo_stopwords = open(caminho_stopwords, "r", encoding="utf-8")
             for linha in arquivo_stopwords:
@@ -199,6 +199,17 @@ class ArquivosUtils:
             print("Erro na extração de StopWords! \n")
         finally:
             arquivo_stopwords.close()
-            print("Extração das stopWords realizada com sucesso! \n")
-            print("*************************************************************************\n")
+            #print("Extração das stopWords realizada com sucesso! \n")
+            #print("*************************************************************************\n")
         return novas_stopwords
+
+    @staticmethod
+    def extracao_artigos_listas(nome_do_arquivo):
+        caminho_fixo = "ArtefatosSaida\CorpusDados/"
+        nome_arq_completo = caminho_fixo + nome_do_arquivo
+        arquivo = open(nome_arq_completo + ".txt", "r", encoding="utf-8")
+        lista_artigo = []
+        for linhas in arquivo:
+            lista_artigo.append(linhas)
+        arquivo.close()
+        return lista_artigo

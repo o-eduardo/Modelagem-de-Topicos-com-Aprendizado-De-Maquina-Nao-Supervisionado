@@ -7,8 +7,8 @@ import pandas as pd
 # load webdriver function from selenium
 from selenium import webdriver
 
-from Utils.ArquivosUtils import ArquivosUtils
-from Utils.ExtracaoUtils import ExtracaoUtils
+from utils.ArquivosUtils import ArquivosUtils
+from utils.ExtracaoUtils import ExtracaoUtils
 
 
 def acionar_driver():

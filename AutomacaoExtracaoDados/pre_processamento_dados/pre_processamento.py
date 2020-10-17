@@ -3,8 +3,10 @@ import re
 from unicodedata import normalize
 
 import nltk
+from gensim import corpora
 from nltk import word_tokenize
 from nltk.corpus import stopwords
+from nltk.probability import FreqDist
 
 from utils.ArquivosUtils import ArquivosUtils
 
@@ -526,3 +528,141 @@ class PreProcessamento:
         texto = self.remover_palavras_por_tamanho(texto, 1)
         texto = self.remover_acentos(texto)
         return texto
+
+    def pre_processamento_lista_artigos(self, edicao_artigo):
+        ano_edicao = str(edicao_artigo)
+        lista_de_listas = []
+        if ano_edicao == "2011":
+            nome_arquivo = "corpus_artigos_edicao_2011"
+            lista_artigos_brutos = ArquivosUtils.extracao_artigos_listas(nome_arquivo)
+            for linha in lista_artigos_brutos:
+                txt_pre = self.pre_processamento_2011(linha)
+                lista_txt_pre = txt_pre.split()
+                lista_de_listas.append(lista_txt_pre)
+            return lista_de_listas
+
+        elif ano_edicao == "2013":
+            nome_arquivo = "corpus_artigos_edicao_2013"
+            lista_artigos_brutos = ArquivosUtils.extracao_artigos_listas(nome_arquivo)
+            for linha in lista_artigos_brutos:
+                txt_pre = self.pre_processamento_2013(linha)
+                lista_txt_pre = txt_pre.split()
+                lista_de_listas.append(lista_txt_pre)
+            return lista_de_listas
+
+        elif ano_edicao == "2014":
+            nome_arquivo = "corpus_artigos_edicao_2014"
+            lista_artigos_brutos = ArquivosUtils.extracao_artigos_listas(nome_arquivo)
+            for linha in lista_artigos_brutos:
+                txt_pre = self.pre_processamento_2014(linha)
+                lista_txt_pre = txt_pre.split()
+                lista_de_listas.append(lista_txt_pre)
+            return lista_de_listas
+
+        elif ano_edicao == "2015":
+            nome_arquivo = "corpus_artigos_edicao_2015"
+            lista_artigos_brutos = ArquivosUtils.extracao_artigos_listas(nome_arquivo)
+            for linha in lista_artigos_brutos:
+                txt_pre = self.pre_processamento_2015(linha)
+                lista_txt_pre = txt_pre.split()
+                lista_de_listas.append(lista_txt_pre)
+            return lista_de_listas
+
+        elif ano_edicao == "2016":
+            nome_arquivo = "corpus_artigos_edicao_2016"
+            lista_artigos_brutos = ArquivosUtils.extracao_artigos_listas(nome_arquivo)
+            for linha in lista_artigos_brutos:
+                txt_pre = self.pre_processamento_2016(linha)
+                lista_txt_pre = txt_pre.split()
+                lista_de_listas.append(lista_txt_pre)
+            return lista_de_listas
+
+        elif ano_edicao == "2017":
+            nome_arquivo = "corpus_artigos_edicao_2017"
+            lista_artigos_brutos = ArquivosUtils.extracao_artigos_listas(nome_arquivo)
+            for linha in lista_artigos_brutos:
+                txt_pre = self.pre_processamento_2017(linha)
+                lista_txt_pre = txt_pre.split()
+                lista_de_listas.append(lista_txt_pre)
+            return lista_de_listas
+
+        elif ano_edicao == "2018":
+            nome_arquivo = "corpus_artigos_edicao_2018"
+            lista_artigos_brutos = ArquivosUtils.extracao_artigos_listas(nome_arquivo)
+            for linha in lista_artigos_brutos:
+                txt_pre = self.pre_processamento_2018(linha)
+                lista_txt_pre = txt_pre.split()
+                lista_de_listas.append(lista_txt_pre)
+            return lista_de_listas
+
+        elif ano_edicao == "2019":
+            nome_arquivo = "corpus_artigos_edicao_2019"
+            lista_artigos_brutos = ArquivosUtils.extracao_artigos_listas(nome_arquivo)
+            for linha in lista_artigos_brutos:
+                txt_pre = self.pre_processamento_2019(linha)
+                lista_txt_pre = txt_pre.split()
+                lista_de_listas.append(lista_txt_pre)
+            return lista_de_listas
+
+    def unificar_artigos_com_n_gramas(self, lista_de_lista_de_artigos):
+        artigo_tokens_unificados = []
+
+        for artigo in lista_de_lista_de_artigos:
+            xtexto = artigo
+            unigramas = xtexto
+            xbigramas = self.construir_bigramas(xtexto)
+            xtrigramas = self.construir_trigramas(xtexto)
+            xunigramas = unigramas + xbigramas + xtrigramas
+            artigo_tokens_unificados.append(xunigramas)
+        return artigo_tokens_unificados
+
+    def construir_bigramas(self, artigo_tokenizado):
+        bigrams = []
+        for i in range(0, len(artigo_tokenizado)):
+            if (i == len(artigo_tokenizado) - 1):
+                break
+            else:
+                bigrama_obs = artigo_tokenizado[i] + '_' + artigo_tokenizado[i + 1]
+                bigrams.append(bigrama_obs)
+        # colocar analise por frequencia aqui
+        bigrams = self.remover_ngram_por_frequencia(bigrams, 7)
+        return bigrams
+
+    def construir_trigramas(self, artigo_tokenizado):
+        trigrams = []
+        for i in range(0, len(artigo_tokenizado)):
+            if (i == len(artigo_tokenizado) - 2):
+                break
+            else:
+                trigrama_obs = artigo_tokenizado[i] + '_' + artigo_tokenizado[i + 1] + '_' + artigo_tokenizado[i + 2]
+                trigrams.append(trigrama_obs)
+        # colocar analise por frequencia aqui
+        trigrams = self.remover_ngram_por_frequencia(trigrams, 7)
+        return trigrams
+
+    def remover_ngram_por_frequencia(self, lista_ngrams, frequencia_limiar):
+        fdist = FreqDist(lista_ngrams)
+        lista_ngrams_retorno = [w for w in lista_ngrams if fdist[w] >= frequencia_limiar]
+        return lista_ngrams_retorno
+
+    def obter_dicionario(self, lista_de_lista_artigos):
+        dic_id_palavras = corpora.Dictionary(lista_de_lista_artigos)
+        return dic_id_palavras
+
+    def obter_corpus(self, dicionario_artigos, lista_de_lista_artigos):
+        corpus_artigo = [dicionario_artigos.doc2bow(lista_artigo) for lista_artigo in lista_de_lista_artigos]
+        return corpus_artigo
+
+    def obter_lista_geral_todos_artigos(self):
+        lista_artigos_2011 = self.pre_processamento_lista_artigos(2011)
+        lista_artigos_2013 = self.pre_processamento_lista_artigos(2013)
+        lista_artigos_2014 = self.pre_processamento_lista_artigos(2014)
+        lista_artigos_2015 = self.pre_processamento_lista_artigos(2015)
+        lista_artigos_2016 = self.pre_processamento_lista_artigos(2016)
+        lista_artigos_2017 = self.pre_processamento_lista_artigos(2017)
+        lista_artigos_2018 = self.pre_processamento_lista_artigos(2018)
+        lista_artigos_2019 = self.pre_processamento_lista_artigos(2019)
+        lista_completa = lista_artigos_2011 + lista_artigos_2013 + lista_artigos_2014 + lista_artigos_2015 + lista_artigos_2016 + lista_artigos_2017 + lista_artigos_2018 + lista_artigos_2019
+        return lista_completa
+
+
