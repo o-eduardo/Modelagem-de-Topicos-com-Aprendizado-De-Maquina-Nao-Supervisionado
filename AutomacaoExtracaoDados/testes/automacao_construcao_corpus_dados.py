@@ -1,7 +1,7 @@
 import time
 
 
-from Utils.ArquivosUtils import ArquivosUtils
+from utils.ArquivosUtils import ArquivosUtils
 
 
 def main():
