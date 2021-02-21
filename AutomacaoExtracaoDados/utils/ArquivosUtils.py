@@ -5,7 +5,6 @@ import io
 import pandas as pd
 import requests
 from pdfminer.converter import TextConverter
-from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFPageInterpreter
 from pdfminer.pdfinterp import PDFResourceManager
 from pdfminer.pdfpage import PDFPage
