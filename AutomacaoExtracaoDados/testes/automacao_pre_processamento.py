@@ -1,3 +1,5 @@
+from functools import reduce
+
 from preprocessamento.pre_processamento import PreProcessamento
 from utils.ArquivosUtils import ArquivosUtils
 
@@ -22,7 +24,15 @@ def main():
     dicionario_geral = pre_processamento.obter_dicionario(lista_ngrams_geral)
     corpus_geral = pre_processamento.obter_corpus(dicionario_geral, lista_ngrams_geral)
     print("Lista de Lista Bag Of Word Para Testes : {0}".format(len(corpus_geral)))
+    lista_tamanho = []
 
+    for art in lista_ngrams_geral:
+        lista_tamanho.append((len(art)))
+    print(len(lista_tamanho))
+    import operator
+    soma_tam = reduce(operator.add, lista_tamanho)
+    media = soma_tam/len(lista_tamanho)
+    print("Tamanho médio dos artigos: {}".format(media))
 
 if __name__ == '__main__':
     main()
